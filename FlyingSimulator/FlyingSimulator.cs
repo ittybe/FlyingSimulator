@@ -56,9 +56,16 @@ namespace FlyingSimulator
             MetersPerShift = _MetersPerShift;
             int StartSpeed = 500;
             Plane = new Plane(_Height/2, StartSpeed);
-            FrameRenderer = new FrameRenderer(Plane, _Height, _Length);
+            FrameRenderer = new FrameRenderer(this, _Height, _Length);
             PlaneControlPanel = new PlaneControl(this);
             PlaneStateChecker = new PlaneStateChecker(this, StartSpeed);
+        }
+        protected string GetInfoToRender()
+        {
+            string info = "";
+            info += $"Plane Speed: {Plane.Speed}\n";
+            info += $"Plane Height: {Plane.Y}\n";
+            return info;
         }
 
         public void Render(int ShiftX = 0, int ShiftY = 0)
@@ -72,7 +79,6 @@ namespace FlyingSimulator
             buffer.MoveNext();
             List<CharLocate> filling = new List<CharLocate>();
             long FramesCount = 0;
-            int Times = 3;
             while (true)
             {
                 //Console.WriteLine($"{ShiftsPerFrame} , {FramesPerShift} , {MetersPerSec}");
@@ -97,23 +103,15 @@ namespace FlyingSimulator
                             buffer.MoveNext();
                         }
                     }
+                    // processing info
                     FrameRenderer.MountainRenderer.ShiftCanvasLeft(filling.ToArray());
                     filling.Clear();
+                    FrameRenderer.InfoRenderer.InfoToRender = GetInfoToRender();
 
                     Console.Clear();
-                    FrameRenderer.PlaneRenderer.Render(ShiftX, ShiftY);
-                    FrameRenderer.MountainRenderer.Render(ShiftX, ShiftY);
-
+                    FrameRenderer.Render(ShiftX, ShiftY);
                     if (IsPlaneCrushed)
                         break;
-                    //try
-                    //{
-                    //    PlaneStateChecker.CheckPlaneCrush();
-                    //}
-                    //catch (ApplicationException)
-                    //{
-                    //    break;
-                    //}
                 }
                 else
                 {
