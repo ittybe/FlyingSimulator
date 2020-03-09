@@ -29,7 +29,7 @@ namespace Rendering
         {
             PlaneRenderer.Render(ShiftX, ShiftY);
             MountainRenderer.Render(ShiftX, ShiftY);
-            InfoRenderer.Render(ShiftX, ShiftY);
+            InfoRenderer.Render(ShiftX, ShiftY + HeightFrame+1);
         }
     }
 }

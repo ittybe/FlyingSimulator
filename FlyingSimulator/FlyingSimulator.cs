@@ -63,8 +63,8 @@ namespace FlyingSimulator
         protected string GetInfoToRender()
         {
             string info = "";
-            info += $"Plane Speed: {Plane.Speed}\n";
-            info += $"Plane Height: {Plane.Y}\n";
+            info += $"Plane Speed : {Plane.Speed, 10}\n";
+            info += $"Plane Height: {Plane.Y, 10}\n";
             return info;
         }
 
