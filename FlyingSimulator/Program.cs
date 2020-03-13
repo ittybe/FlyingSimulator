@@ -1,6 +1,7 @@
 ﻿using System; 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 namespace FlyingSimulator
 {
     // TODO срандомь 10 колекций в 1 массив и доставай их по необзодимости
@@ -21,6 +22,10 @@ namespace FlyingSimulator
             try
             {
                 flyingSimulator.Start();
+                while (!flyingSimulator.IsSimulationStoped)
+                {
+                }
+                Thread.Sleep(1000);
                 Console.Clear();
                 if (flyingSimulator.IsPlaneCrushed)
                 {
@@ -34,11 +39,13 @@ namespace FlyingSimulator
             catch (ApplicationException exp) 
             {
                 Console.WriteLine(exp.Message);
+                throw;
             }
             finally
             {
                 flyingSimulator.Stop();
             }
+            
 #if RE
             Random r = new Random();
             int len = 60;

@@ -66,7 +66,7 @@ namespace FlyingSimulator
             MetersPerShift = _MetersPerShift;
             int StartSpeed = 500;
             MetersPerY = 500;
-            Distance = 1000 * 1000;
+            Distance = 1000 * 100;
 
             Plane = new Plane(0, 0);
             PlaneControlPanel = new PlaneControl(this);

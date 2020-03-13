@@ -68,6 +68,7 @@ namespace ControlPanel
             {
                 CheckPlaneCrush();
                 CheckPlaneFalling();
+                CheckPlaneLanding();
                 if (Simulator.IsSimulationStoped)
                     break;
             }
