@@ -1,8 +1,6 @@
 ﻿using System; 
 using System.Collections.Generic;
 using System.Diagnostics;
-using ObjectUnits;
-using Rendering;
 namespace FlyingSimulator
 {
     // TODO срандомь 10 колекций в 1 массив и доставай их по необзодимости
@@ -19,11 +17,19 @@ namespace FlyingSimulator
             //Console.WriteLine(plane.Y);
             int hei = 50;
             int len = 80;
-
             FlyingSimulator flyingSimulator = new FlyingSimulator(hei, len);
             try
             {
                 flyingSimulator.Start();
+                Console.Clear();
+                if (flyingSimulator.IsPlaneCrushed)
+                {
+                    Console.WriteLine("game over. Your plane crushed");
+                }
+                else if (flyingSimulator.IsPlaneLanded)
+                {
+                    Console.WriteLine("You WIN!!!");
+                }
             }
             catch (ApplicationException exp) 
             {

@@ -52,7 +52,7 @@ namespace ControlPanel
                     default:
                         break;
                 }
-                if (Simulator.IsPlaneCrushed)
+                if (Simulator.IsSimulationStoped)
                     break;
             }
         }

@@ -11,6 +11,9 @@ namespace FlyingSimulator
     class FlyingSimulator : IRenderer
     {
         public bool IsPlaneCrushed { get; protected set; }
+        public bool IsPlaneLanded { get; protected set; }
+        public bool IsSimulationStoped{ get; set; }
+
         public Thread RenderingThread { get; protected set; }
         public Thread PlaneControlThread { get; protected set; }
         public Thread PlaneStateCheckThread { get; set; }
@@ -49,27 +52,45 @@ namespace FlyingSimulator
         public Plane Plane { get; protected set; }
         public PlaneControl PlaneControlPanel { get; protected set; }
         public PlaneStateChecker PlaneStateChecker { get; protected set; }
-        
+
+        public double PassedDistance { get; private set; }
+
+        public double Distance { get; private set; }
+
+        public int MetersPerY { get; private set; }
+
         public FlyingSimulator(int _Height, int _Length, int _FPS = 120, double _MetersPerShift = 10)
         {
+
             FPS = _FPS;
             MetersPerShift = _MetersPerShift;
             int StartSpeed = 500;
-            Plane = new Plane(_Height/2, StartSpeed);
-            FrameRenderer = new FrameRenderer(this, _Height, _Length);
+            MetersPerY = 500;
+            Distance = 1000 * 1000;
+
+            Plane = new Plane(0, 0);
             PlaneControlPanel = new PlaneControl(this);
+            FrameRenderer = new FrameRenderer(this, _Height, _Length);
             PlaneStateChecker = new PlaneStateChecker(this, StartSpeed);
+
+            PlaneStateChecker.PlaneCrush += () => IsPlaneCrushed = true;
+            PlaneStateChecker.PlaneLanded += () => IsPlaneLanded = true;
         }
         protected string GetInfoToRender()
         {
             string info = "";
-            info += $"Plane Speed : {Plane.Speed, 10}\n";
-            info += $"Plane Height: {Plane.Y, 10}\n";
+            
+            info += $"Plane Speed : {Math.Round((decimal)Plane.Speed * 1000 / 3600, 2), 10} km/h\n";
+            info += $"Plane Height: {Plane.Y*MetersPerY, 10} km\n";
+            info += $"Passed distance: {Math.Round(PassedDistance / 1000, 2),10} km\n\n";
+            info += $"Falling Speed: {Math.Round((decimal)PlaneStateChecker.FallingSpeed * 1000 / 3600, 2),10} km/h\n";
+
             return info;
         }
 
         public void Render(int ShiftX = 0, int ShiftY = 0)
         {
+            int MaxHeigthMountain = 4000;
             /// MOUNTAIN ANIMATION
             Random r = new Random();
             int LengthMountain = r.Next(FrameRenderer.LengthFrame / 2, FrameRenderer.LengthFrame);
@@ -98,8 +119,11 @@ namespace FlyingSimulator
                         {
                             LengthMountain = r.Next(FrameRenderer.LengthFrame / 2, FrameRenderer.LengthFrame);
                             HeightMountain = r.Next(1, LengthMountain / 2);
-
-                            buffer = (IEnumerator<CharLocate>)Mountain.Generate(HeightMountain, LengthMountain).GetEnumerator();
+                            HeightMountain = HeightMountain % (MaxHeigthMountain / MetersPerY) + 1;
+                            if (PassedDistance < Distance)
+                                buffer = (IEnumerator<CharLocate>)Mountain.Generate(HeightMountain, LengthMountain).GetEnumerator();
+                            else
+                                buffer = (IEnumerator<CharLocate>)(new Mountain(100)).GetEnumerator();
                             buffer.MoveNext();
                         }
                     }
@@ -110,16 +134,16 @@ namespace FlyingSimulator
 
                     Console.Clear();
                     FrameRenderer.Render(ShiftX, ShiftY);
-                    if (IsPlaneCrushed)
+                    if (IsSimulationStoped)
                         break;
                 }
                 else
                 {
                     Thread.Sleep(1000 / FPS);
                 }
+                PassedDistance += ShiftsPerFrame * MetersPerShift;
             }
         }
-
         
         public void Stop()
         {
@@ -128,13 +152,12 @@ namespace FlyingSimulator
             //PlaneControlThread?.Abort();
             //RenderingThread?.Abort();
         }
+
         public void Start()
         {
             PlaneControlThread = new Thread(PlaneControlPanel.Listen);
             RenderingThread = new Thread(() => Render(4, 5));
             PlaneStateCheckThread = new Thread(PlaneStateChecker.StartChecking);
-            
-            PlaneStateChecker.PlaneCrush += () => IsPlaneCrushed = true;
 
             PlaneControlThread.Start();
             RenderingThread.Start();

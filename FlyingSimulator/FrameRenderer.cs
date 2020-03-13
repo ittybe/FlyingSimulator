@@ -27,8 +27,8 @@ namespace Rendering
         
         public void Render(int ShiftX = 0, int ShiftY = 0)
         {
-            PlaneRenderer.Render(ShiftX, ShiftY);
             MountainRenderer.Render(ShiftX, ShiftY);
+            PlaneRenderer.Render(ShiftX, ShiftY);
             InfoRenderer.Render(ShiftX, ShiftY + HeightFrame+1);
         }
     }

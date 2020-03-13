@@ -15,6 +15,8 @@ namespace ControlPanel
 
         public event StateHandler PlaneCrush;
 
+        public event StateHandler PlaneLanded;
+
         public int FallingSpeed { get; set; }
 
         public FlyingSimulator.FlyingSimulator Simulator{ get; protected set; }
@@ -28,20 +30,36 @@ namespace ControlPanel
         public void CheckPlaneCrush()
         {
             bool PlaneCrushedIntoMountain = Simulator.Plane.Y <= Simulator.FrameRenderer.MountainRenderer.Canvas[0].Y;
+            bool PlaneLanding = Simulator.Plane.Y == 0;
+            // Simulator.FrameRenderer.Simulator
+            string CharsMountain = @"/_\";
+            
+            bool PlaneInMountain = CharsMountain.IndexOf(Simulator.FrameRenderer.MountainRenderer.Canvas[0].Char) >= 0 && Simulator.Plane.Y == 0;
             //bool PlaneCrushedLowSpeed = Simulator.Plane.Y == 0 && Simulator.MetersPerSec < FallingSpeed;
-            if (PlaneCrushedIntoMountain)
+            if ((PlaneCrushedIntoMountain && !PlaneLanding) || PlaneInMountain)
             {
                 PlaneCrush?.Invoke();
+                Simulator.IsSimulationStoped = true;
             }
         }
 
         public void CheckPlaneFalling() 
         {
             bool IsFallingSpeed = Simulator.MetersPerSec < FallingSpeed;
-            if (IsFallingSpeed) 
+            bool IsLanded = Simulator.Plane.Y == 0;
+            if (IsFallingSpeed && !IsLanded)
             {
                 Simulator.Plane.Y--;
                 Thread.Sleep(Simulator.MetersPerSec);
+            }
+        }
+        public void CheckPlaneLanding() 
+        {
+            bool IsLanded = Simulator.Plane.Y == 0 && Simulator.PassedDistance >= Simulator.Distance;
+            if (IsLanded) 
+            {
+                PlaneLanded?.Invoke();
+                Simulator.IsSimulationStoped = true;
             }
         }
         public void StartChecking()
@@ -50,7 +68,7 @@ namespace ControlPanel
             {
                 CheckPlaneCrush();
                 CheckPlaneFalling();
-                if (Simulator.IsPlaneCrushed)
+                if (Simulator.IsSimulationStoped)
                     break;
             }
         }
