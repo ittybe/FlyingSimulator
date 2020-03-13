@@ -22,9 +22,8 @@ namespace FlyingSimulator
             try
             {
                 flyingSimulator.Start();
-                while (!flyingSimulator.IsSimulationStoped)
-                {
-                }
+                flyingSimulator.RenderingThread.Join();
+                // while (!flyingSimulator.IsSimulationStoped) { }
                 Thread.Sleep(1000);
                 Console.Clear();
                 if (flyingSimulator.IsPlaneCrushed)
